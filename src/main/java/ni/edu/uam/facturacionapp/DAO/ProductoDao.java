@@ -38,6 +38,21 @@ public class ProductoDao implements Crud<Producto> {
         ps.setBoolean(6, e.isActivo());
     }
 
+    public boolean existeCodigo(String codigo, Integer excluirId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM producto WHERE LOWER(BTRIM(codigo)) = LOWER(BTRIM(?))"
+                + (excluirId == null ? "" : " AND id <> ?");
+
+        try (Connection c = DatabaseConnection.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, codigo);
+            if (excluirId != null) ps.setInt(2, excluirId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() && rs.getInt(1) > 0;
+            }
+        }
+    }
+
     @Override
     public void guardar(Producto e) throws SQLException {
         try (Connection c = DatabaseConnection.getConnection();
@@ -113,3 +128,4 @@ public class ProductoDao implements Crud<Producto> {
         }
     }
 }
+
