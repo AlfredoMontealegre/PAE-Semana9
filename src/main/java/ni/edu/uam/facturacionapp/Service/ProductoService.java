@@ -15,17 +15,27 @@ public class ProductoService {
     }
 
     public void guardar(Producto e) throws SQLException {
+        if (e == null) {
+            throw new IllegalArgumentException("No se recibió un producto válido.");
+        }
+
         e.setCodigo(Validacion.texto(e.getCodigo(), "Código", 50, true));
         e.setNombre(Validacion.texto(e.getNombre(), "Nombre", 150, true));
 
         if (e.getCategoria() == null || e.getCategoria().getId() == null) {
-            throw new IllegalArgumentException("Selecciona una categoría.");
+            throw new IllegalArgumentException("Debe seleccionar una categoría.");
+        }
+
+        if (dao.existeCodigo(e.getCodigo(), e.getId())) {
+            throw new IllegalArgumentException("Ya existe un producto con ese código.");
         }
 
         if (e.getPrecioVenta() == null) {
             throw new IllegalArgumentException("El precio es obligatorio.");
         }
 
+        // Se vuelve a validar en el servicio para que ninguna otra entrada pueda
+        // saltarse las reglas de la interfaz gráfica.
         e.setPrecioVenta(Validacion.precio(e.getPrecioVenta().toPlainString()));
         e.setExistencia(Validacion.existencia(String.valueOf(e.getExistencia())));
 
@@ -37,6 +47,9 @@ public class ProductoService {
     }
 
     public void eliminar(Integer id) throws SQLException {
+        if (id == null) {
+            throw new IllegalArgumentException("Debe seleccionar un producto.");
+        }
         dao.eliminar(id);
     }
 }
