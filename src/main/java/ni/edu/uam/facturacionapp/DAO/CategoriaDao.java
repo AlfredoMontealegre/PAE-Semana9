@@ -38,6 +38,30 @@ public class CategoriaDao implements Crud<Categoria> {
    if(ps.executeUpdate()!=1) throw new SQLException("El registro ya no existe; actualiza la tabla.");
   }
  }
+ public boolean existeNombre(String nombre, Integer excluirId) throws SQLException {
+  String sql = "SELECT COUNT(*) FROM categoria WHERE LOWER(BTRIM(nombre)) = LOWER(BTRIM(?))"
+      + (excluirId == null ? "" : " AND id <> ?");
+  try (Connection c = DatabaseConnection.getConnection();
+       PreparedStatement ps = c.prepareStatement(sql)) {
+   ps.setString(1, nombre);
+   if (excluirId != null) ps.setInt(2, excluirId);
+   try (ResultSet rs = ps.executeQuery()) {
+    return rs.next() && rs.getInt(1) > 0;
+   }
+  }
+ }
+
+ public boolean tieneProductos(Integer categoriaId) throws SQLException {
+  String sql = "SELECT COUNT(*) FROM producto WHERE categoria_id = ?";
+  try (Connection c = DatabaseConnection.getConnection();
+       PreparedStatement ps = c.prepareStatement(sql)) {
+   ps.setInt(1, categoriaId);
+   try (ResultSet rs = ps.executeQuery()) {
+    return rs.next() && rs.getInt(1) > 0;
+   }
+  }
+ }
+
  @Override public void eliminar(Integer id) throws SQLException {
   try(Connection c=DatabaseConnection.getConnection(); PreparedStatement ps=c.prepareStatement("DELETE FROM categoria WHERE id=?")) {
    ps.setInt(1,id); if(ps.executeUpdate()!=1) throw new SQLException("El registro ya no existe; actualiza la tabla.");
