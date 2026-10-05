@@ -71,10 +71,14 @@ public abstract class CatalogoController<T> {
  @FXML public void guardar() {
   try { T e=formulario();
    Ui.ejecutar(root,()->{persistir(e);return true;},ok->actualizar(),Ui::error);
-  } catch(IllegalArgumentException e) { Ui.error(e); }
+  } catch(NumberFormatException e) { Ui.error(e); }
+    catch(IllegalArgumentException e) { Ui.error(e); }
  }
  @FXML public void eliminar() {
-  if(seleccionado==null) return;
+  if(seleccionado==null) {
+   Ui.advertencia("Selección requerida", "Debe seleccionar un registro antes de eliminarlo.");
+   return;
+  }
   Alert confirmacion=new Alert(Alert.AlertType.CONFIRMATION,"¿Eliminar el registro seleccionado? Esta acción es permanente.",ButtonType.CANCEL,ButtonType.OK);
   confirmacion.initOwner(root.getScene().getWindow());confirmacion.setTitle("Eliminar registro");confirmacion.setHeaderText("Confirma la eliminación");
   if(confirmacion.showAndWait().orElse(ButtonType.CANCEL)!=ButtonType.OK)return;
